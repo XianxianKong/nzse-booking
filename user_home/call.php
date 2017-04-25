@@ -26,6 +26,7 @@
 		$day[0] = "0";
 	}
 	$date = $_SESSION['year']."-".$month."-".$day;
+	$tempDat = $day."-".$month."-".$_SESSION['year'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -44,7 +45,7 @@
 				<h1>Booking</h1>	
 			<h2 id="date">
 <?php
-	echo $date;
+	echo $tempDat;
 ?>
 </h2>
 <div id='error'>
@@ -77,7 +78,7 @@ echo "<option>Any</option>";
 while($row = mysqli_fetch_array($result)) {
 	$campusid = $row['campusid'];
 	
-	echo "<option value='".$campusid."'"; if(isset($_SESSION['campusid'])) {if($_SESSION['campusid']==$campusid) {echo " selected";}} echo ">" .$row['campusname']."</option>";
+	echo "<option value='".$campusid."'"; if(isset($_SESSION['campusid'])) {if($_SESSION['campusid']==$campusid) {echo " selected";}} echo ">" .$row['campusname']."(".$campusid.")</option>";
 }
 echo "</select>";
 mysqli_close($conn);
@@ -100,7 +101,7 @@ mysqli_close($conn);
 ?>
 
 <div class = "margin_left" >
-<label>More than</label>
+<label>Capacity (More than)</label>
 <input type="text" id="capacity" onchange="filterCapacity(this.value)" />
 </div>
 </div>
@@ -171,41 +172,60 @@ function changeOptions(campusid) {
 			if(isset($_GET['capacity']))
 			{
 				$capacity = $_GET['capacity'];
-				$result2 = "SELECT room.roomname,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."' AND b.buildingid='".$buildingid."' AND room.capacity>'$capacity'";
+				$result2 = "SELECT room.roomname,room.roomtype,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."' AND b.buildingid='".$buildingid."' AND room.capacity>'$capacity'";
 			}
 			else
 			{
 			
-			$result2 = "SELECT room.roomname,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."' AND b.buildingid='".$buildingid."'";
+			$result2 = "SELECT room.roomname,room.roomtype,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."' AND b.buildingid='".$buildingid."'";
 			}
 			}
 			else
 			{
-				$result2 = "SELECT room.roomname,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."'";
+				$result2 = "SELECT room.roomname,room.roomtype,room.roomid,b.buildingname,campus.* FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."'";
 			}
 		}
 		elseif(isset($_GET['buildingid']) && ($_GET['buildingid']!="Select a building"))
 		{
 			$buildingid=$_GET['buildingid'];
-			$result2 = "SELECT room.roomname,room.roomid,b.buildingname FROM building b, room WHERE b.buildingid=room.buildingid AND b.buildingid='".$buildingid."'";
+			$result2 = "SELECT room.roomname,room.roomtype,room.roomid,b.buildingname FROM building b, room WHERE b.buildingid=room.buildingid AND b.buildingid='".$buildingid."'";
 			
 		}
 		elseif(isset($_GET['capacity']))
 		{
 			$capacity = $_GET['capacity'];
-			$result2 = "SELECT room.roomname,room.roomid FROM room WHERE room.capacity>'$capacity'";
+			$result2 = "SELECT room.roomname,room.roomtype,room.roomid FROM room WHERE room.capacity>'$capacity'";
 		}
 		else
 		{
-			$result2 = "SELECT room.roomname,room.roomid FROM room";
+			$result2 = "SELECT room.roomname,room.roomtype,room.roomid FROM room";
 		}
 		if(($runquery2 = $conn->query($result2)) )
 		{
 			while($row = $runquery2->fetch_assoc())
 			{
+				if($row["roomtype"]==1)
+				{
+					$childQuery = "SELECT m.roomname,m.multiroomchildid FROM multiroomchild m WHERE m.roomid='".$row["roomid"]."'";
+					if(($childrunquery = $conn->query($childQuery)) )
+					{
+					while($row2 = $childrunquery->fetch_assoc())
+					{
+						$rooms[$row2["multiroomchildid"]]["name"] = $row2["roomname"];
+						$rooms[$row2["multiroomchildid"]]["id"] = $row2["multiroomchildid"];
+						$rooms[$row2["multiroomchildid"]]["type"] = $row["roomtype"];
+					}
+					}
+					if(!$childrunquery)
+					{
+						 $_SESSION['error'] = "Query error: ".mysqli_error($conn);
+					}
+				}
+				else
+				{
 				$rooms[$row["roomid"]]["name"] = $row["roomname"];
 				$rooms[$row["roomid"]]["id"] = $row["roomid"];
-				
+				}
 				
 			}
 		}
@@ -226,8 +246,8 @@ if(($runquery = $conn->query($result)) )
 		{
 			  $_SESSION['error'] = "Query error: ".mysqli_error($conn);
 		}
-
-			$result = "SELECT c.* FROM coursebooking c WHERE c.startdate<='$date' AND c.enddate>='$date'";	
+		
+				$result = "SELECT c.* FROM coursebooking c WHERE c.startdate<='$date' AND c.enddate>='$date'";	
 if(($runquery = $conn->query($result)) )
 		{
 			while($row = $runquery->fetch_assoc())
@@ -248,7 +268,6 @@ if(($runquery = $conn->query($result)) )
 				}
 				
 				
-				
 				}
 			}
 		}
@@ -257,6 +276,7 @@ if(($runquery = $conn->query($result)) )
 			  $_SESSION['error'] = "Query error: ".mysqli_error($conn);
 		}
 
+		
 ?>
 
 <script>
@@ -265,7 +285,7 @@ $rooms = json_encode($rooms);
 echo "var rooms = ".$rooms.";\n";
 ?>
 
-function createTable(roomname,roomid,bookedTime) {
+function createTable(roomname,roomid,bookedTime,rt) {
 	var body = document.getElementById("booking");
 	var table = document.createElement("table");
 	var tb  = document.createElement("tbody");
@@ -297,6 +317,10 @@ function createTable(roomname,roomid,bookedTime) {
 			{
 				td.setAttribute('rowSpan','6');
 				td.appendChild(document.createTextNode(roomname));
+				if(rt==1)
+				{
+				td.appendChild(document.createTextNode(" (multiroom area)"));
+				}
 			}
 			if(i%2 == 0 && j != 0)
 			{
@@ -384,26 +408,24 @@ function createRoomInput(roomid)
 clearTables();
 var len = rooms.length;
  for (var i in rooms) {
-	
-	 createTable(rooms[i]["name"],rooms[i]["id"],rooms[i]["time"]);
-	  
+	if(rooms[i]["type"])
+	{
+	 createTable(rooms[i]["name"],rooms[i]["id"],rooms[i]["time"],1);
+	}
+	else
+	{
+		createTable(rooms[i]["name"],rooms[i]["id"],rooms[i]["time"],0);
+	}
  }
  
 
 $("#container").submit(function(event){
     event.preventDefault(); // cancel submit
 	var form = $('#container');
-	if($("#booking input:checkbox:checked").length == 0)
-{
-d = 5000;
-				alertify.set({ delay: d });
-				alertify.log("nothing is checked");
-	return;
-}
 var formAction = form.attr('action');
 var result = formAction + '?' + form.serialize();
   var z = prompt("Please provide reason for booking.","Meeting");
-  if(z===null)
+  if(z===null || z=="")
   {
 	  return;
   }

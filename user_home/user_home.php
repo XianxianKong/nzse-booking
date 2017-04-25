@@ -20,9 +20,10 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1><?php echo phpversion(); ?></h1>	
+
 				<div class="container">
 				<!-- Responsive calendar - START -->
+					<div id = "calendar">
 					<div class="responsive-calendar">
 						<div class="controls">
 							<a class="pull-left" data-go="prev"><div class="btn btn-primary">Prev</div></a>
@@ -43,6 +44,7 @@
 						<div class="days" data-group="days">
           
 						</div>
+					</div>
 					</div>
       <!-- Responsive calendar - END -->
 				</div>

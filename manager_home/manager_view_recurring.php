@@ -10,7 +10,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<?php $title="recurring booking"; ?>
+	<?php $title="Booking"; ?>
 	<?php include '../php_includes/head_elements.php'; ?>
 	<?php include '../php_includes/alertbox.php'; ?>
 </head>
@@ -19,7 +19,7 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>recurring booking</h1>	
+				<h1>Booking</h1>	
 			
 <div id='error'>
 		<?php

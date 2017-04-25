@@ -1,9 +1,19 @@
 <?php session_start(); ?>
 <?php 
 include 'php_script/connectDB.php';
-if(isset($_GET['deletingid']))
+if(isset($_SESSION['did']))
 {
-$bid = $_GET['deletingid'];
+	$me = "Your booking has been refused";
+$bid = $_SESSION['did'];
+unset($_SESSION['did']);
+}
+if(isset($_SESSION['cid']))
+{
+	$me = "Your booking has been confirmed";
+$bid = $_SESSION['cid'];
+unset($_SESSION['cid']);
+}
+
 		$query = "SELECT b.*,user.email,user.userid FROM booking b,user WHERE user.userid = b.bookinguserid AND b.bookingid = '".$bid."'";
 		if ($runquery = $conn->query($query))
 		{
@@ -20,9 +30,10 @@ $bid = $_GET['deletingid'];
 				if(!$runquery)
 				{
 				$_SESSION['error'] = "email query";
-			header('location: ../admin_home/admin_editbooking.php');
+			header('location: ../admin_home/admin_editbooking.php?fail='+1);
 			exit();
 				}
+				$_SESSION['error'] .= $email;
 		mysqli_close($conn);
 		$txt = "
 		<html>
@@ -65,7 +76,7 @@ $bid = $_GET['deletingid'];
 		</tr>
 		<tr>
 			<th>Comment</th>
-			<td colspan='3'>Your booking has been confirmed.</td>
+			<td colspan='3'>$me.</td>
 		</tr>
 	</table><br /><center><fieldset>";
 		
@@ -86,20 +97,5 @@ $bid = $_GET['deletingid'];
 		$headers .= 'From: <NZSEsystem@nzse.ac.nz>' . "\r\n";
 
 		$flag = mail($email,$subject,$txt,$headers);
-	if(!flag)
-{
-$_SESSION['error'] = "email not sent";
-			header('location: ../admin_home/admin_editbooking.php');
-			exit();
-}
-		
-	}
-	else
-	{
-	$_SESSION['error'] = "email not sent";
-			header('location: ../admin_home/admin_editbooking.php');
-			exit();
-			}
-			
 	?>
 	

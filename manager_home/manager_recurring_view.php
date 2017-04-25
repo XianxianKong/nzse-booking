@@ -13,7 +13,7 @@ if(isset($_GET['submit']))
 	$_SESSION["enddate"] = $_GET["enddate"];
 	$_SESSION["cohort"] = $_GET["cohort"];
 	$_SESSION["tutor"] = $_GET["tutor"];
-	if($_GET["campusid"]=="Select a campus id")
+	if($_GET["campusid"]=="Select a campus")
 	{$_GET["campusid"] = "Any";
 }
 	$_SESSION["campusid"] = $_GET["campusid"];
@@ -69,6 +69,12 @@ if(isset($_GET['submit']))
 
 	$cohort = $_SESSION["cohort"];
 	$tutor = $_SESSION["tutor"];
+		include '../php_script/connectDB.php';
+$sql="SELECT * FROM tutor WHERE tutorid='$tutor'";
+$result = mysqli_query($conn,$sql);
+while($row = mysqli_fetch_array($result)) {
+	$tutorname = $row['firstname']." ".$row['lastname'];
+}
 	$campusid = $_SESSION["campusid"];
 	$startdate = $_SESSION["startdate"];
 	
@@ -100,7 +106,7 @@ if(isset($_GET['submit']))
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>view Booking</h1>	
+				<h1>Booking</h1>	
 			<h2 id="date">
 <?php
 			echo $startdate." ".$enddate;
@@ -122,7 +128,7 @@ $testflag =0;
 				$test1 = date("H:i", strtotime('+30 minutes',$test1));
 				}
 				
-				echo $testflag;
+			
 				?>
 <table>
 <tr>
@@ -162,7 +168,7 @@ while($row = mysqli_fetch_array($result)) {
 	$campusid = $row['campusid'];
 	
 	
-	echo "<option value='".$campusid."'"; if(isset($_SESSION['campusid'])) {if($_SESSION['campusid']==$campusid) {echo " selected";}} echo ">" .$row['campusname']."(".$campusid.")</option>";
+	echo "<option value='".$campusid."'"; if(isset($_SESSION['campusid'])) {if($_SESSION['campusid']==$campusid) {echo " selected";}} echo ">" .$row['campusname']."</option>";
 }
 echo "</select>";
 mysqli_close($conn);
@@ -174,17 +180,17 @@ $sql="SELECT * FROM building";
 $result = mysqli_query($conn,$sql);
 echo "<label for='buildingid'>Building: </label>
 <select name='buildingid' id='buildingid' onchange='search(this.value,1)'>";
-echo "<option>Select a building id</option>";
+echo "<option>Select a building</option>";
 while($row = mysqli_fetch_array($result)) {
 	$buildingid = $row['buildingid'];
 	
-	echo "<option value='".$buildingid."'"; if(isset($_SESSION['buildingid'])) {if($_SESSION['buildingid']==$buildingid) {echo " selected";}} echo ">" .$row['buildingname']."(".$buildingid.")</option>";
+	echo "<option value='".$buildingid."'"; if(isset($_SESSION['buildingid'])) {if($_SESSION['buildingid']==$buildingid) {echo " selected";}} echo ">" .$row['buildingname']."</option>";
 }
 echo "</select>";
 mysqli_close($conn);
 ?>
 
-<label>More than</label>
+<label>Capacity (More than)</label>
 <input type="text" id="capacity" onchange="filterCapacity(this.value)" /><br />
 <script src="../js/jquery.js"></script>
 <script>
@@ -264,7 +270,7 @@ function changeOptions(campusid) {
 				$result2 = "SELECT room.roomname,room.roomid,b.buildingname,campus.*,room.roomtype FROM building b, room,campus WHERE b.buildingid=room.buildingid AND b.campusid=campus.campusid AND b.campusid='".$campusid."'";
 			}
 		}
-		elseif(isset($_GET['buildingid']) && ($_GET['buildingid']!="Select a building id"))
+		elseif(isset($_GET['buildingid']) && ($_GET['buildingid']!="Select a building"))
 		{
 			$buildingid=$_GET['buildingid'];
 			$result2 = "SELECT room.roomname,room.roomid,b.buildingname,room.roomtype FROM building b, room WHERE b.buildingid=room.buildingid AND b.buildingid='".$buildingid."'";
@@ -311,7 +317,7 @@ function changeOptions(campusid) {
 		{
 			  $_SESSION['error'] = "Query error: ".mysqli_error($conn);
 		}
-$result = "SELECT c.* FROM coursebooking c WHERE c.startdate >='$startdate' AND c.startdate <='$enddate'";	
+$result = "SELECT c.*,t.* FROM coursebooking c,tutor t WHERE c.startdate >='$startdate' AND c.startdate <='$enddate' AND c.tutorid=t.tutorid";	
 if(($runquery = $conn->query($result)) )
 		{
 			while($row = $runquery->fetch_assoc())
@@ -324,7 +330,7 @@ if(($runquery = $conn->query($result)) )
 				$rooms[$row["roomid"]]["booked"][$count]["startdate"] = $row["startdate"];
 				$rooms[$row["roomid"]]["booked"][$count]["enddate"] = $row["enddate"];
 				$rooms[$row["roomid"]]["booked"][$count]["coursename"] = $row["coursename"];
-				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["tutor"];
+				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["firstname"]." ".$row["lastname"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Mon"] = $row["dayMon"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Tue"] = $row["dayTue"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Wed"] = $row["dayWed"];
@@ -342,7 +348,7 @@ if(($runquery = $conn->query($result)) )
 		
 
 		
-$result = "SELECT c.* FROM coursebooking c WHERE c.enddate >='$startdate' AND c.enddate <='$enddate'";	
+$result = "SELECT c.*,t.* FROM coursebooking c,tutor t WHERE c.enddate >='$startdate' AND c.enddate <='$enddate' AND c.tutorid=t.tutorid";	
 if(($runquery = $conn->query($result)) )
 		{
 			while($row = $runquery->fetch_assoc())
@@ -355,7 +361,7 @@ if(($runquery = $conn->query($result)) )
 				$rooms[$row["roomid"]]["booked"][$count]["startdate"] = $row["startdate"];
 				$rooms[$row["roomid"]]["booked"][$count]["enddate"] = $row["enddate"];
 				$rooms[$row["roomid"]]["booked"][$count]["coursename"] = $row["coursename"];
-				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["tutor"];
+				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["firstname"]." ".$row["lastname"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Mon"] = $row["dayMon"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Tue"] = $row["dayTue"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Wed"] = $row["dayWed"];
@@ -371,7 +377,7 @@ if(($runquery = $conn->query($result)) )
 			  $_SESSION['error'] = "Query error: ".mysqli_error($conn);
 		}
 		
-		$result = "SELECT c.* FROM coursebooking c WHERE c.startdate <='$startdate' AND c.enddate >= '$enddate'";	
+		$result = "SELECT c.*,t.* FROM coursebooking c,tutor t WHERE c.startdate <='$startdate' AND c.enddate >= '$enddate' AND c.tutorid=t.tutorid";	
 if(($runquery = $conn->query($result)) )
 		{
 			while($row = $runquery->fetch_assoc())
@@ -384,7 +390,7 @@ if(($runquery = $conn->query($result)) )
 				$rooms[$row["roomid"]]["booked"][$count]["startdate"] = $row["startdate"];
 				$rooms[$row["roomid"]]["booked"][$count]["enddate"] = $row["enddate"];
 				$rooms[$row["roomid"]]["booked"][$count]["coursename"] = $row["coursename"];
-				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["tutor"];
+				$rooms[$row["roomid"]]["booked"][$count]["tutor"] = $row["firstname"]." ".$row["lastname"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Mon"] = $row["dayMon"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Tue"] = $row["dayTue"];
 				$rooms[$row["roomid"]]["booked"][$count]["days"]["Wed"] = $row["dayWed"];
@@ -399,7 +405,7 @@ if(($runquery = $conn->query($result)) )
 		{
 			  $_SESSION['error'] = "Query error: ".mysqli_error($conn);
 		}
-		$adhoc = "SELECT c.*,b.* FROM bookinginfo c,booking b WHERE b.bookingid = c.bookingid AND b.date <='$enddate' AND b.date >= '$startdate'";	
+		$adhoc = "SELECT c.*,b.* FROM bookinginfo c,booking b WHERE b.bookingid = c.bookingid AND b.date <='$enddate' AND b.date >= '$startdate' AND b.bookingstatus != 'cancelled'";	
 		if(($runquery = $conn->query($adhoc)) )
 		{
 			while($row = $runquery->fetch_assoc())
@@ -415,7 +421,10 @@ if(($runquery = $conn->query($result)) )
 				$rooms[$row["roomid"]]["booked"][$count]["startdate"] = $date;
 				$rooms[$row["roomid"]]["booked"][$count]["enddate"] = $date;
 				$rooms[$row["roomid"]]["booked"][$count]["coursename"] = "reason: ".$row["reason"]." (".$row["bookingstatus"].")";
-				
+				if($row["bookingstatus"]=="pending")
+				{
+					$rooms[$row["roomid"]]["booked"][$count]["pending"]="w";
+				}
 				$date = date('w', strtotime($date));
 				if($date == 1)
 				{
@@ -480,6 +489,35 @@ if(($runquery = $conn->query($result)) )
 ?>
 
 <script>
+$(function() {
+    // Stick the #nav to the top of the window
+    var date = $('#date');
+    var navHomeY = date.offset().top;
+    var isFixed = false;
+    var $w = $(window);
+    $w.scroll(function() {
+        var scrollTop = $w.scrollTop();
+        var shouldBeFixed = scrollTop > navHomeY;
+        if (shouldBeFixed && !isFixed) {
+            date.css({
+                position: 'fixed',
+                top: 0,
+                left: date.offset().left,
+                width: date.width()
+            });
+			date.css("background-color","white");
+            isFixed = true;
+        }
+        else if (!shouldBeFixed && isFixed)
+        {
+            date.css({
+                position: 'static'
+            });
+            isFixed = false;
+        }
+    });
+});
+
 <?php
 $rooms = json_encode($rooms);
 echo "var rooms = ".$rooms.";\n";
@@ -503,6 +541,8 @@ $cohort = json_encode($cohort);
 echo "var course = ".$cohort.";\n";
 $tutor = json_encode($tutor);
 echo "var tutor = ".$tutor.";\n";
+$tutorname = json_encode($tutorname);
+echo "var tutorname = ".$tutorname.";\n";
 $days = json_encode($days);
 echo "var days = ".$days.";\n";
 $count = json_encode($count);
@@ -530,7 +570,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 	var table = document.createElement("table");
 	var tb  = document.createElement("tbody");
 	var weekCnt =1;var weekCnt2 =1;
-	var time = ["08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"];
+	var time = ["08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00"];
 	 var time2 = ["1:00","1:30","2:00","2:30","3:00","3:30","4:00","4:30","5:00","5:30","6:00","6:30","7:00","7:30"];
 	 var rid = "";
 	 var timeCount = 2;
@@ -553,6 +593,8 @@ function createTable(numWeeks,remainder,date1,date2) {
 	  var flag2=0;
 	  var timeInput;
 	  var dump;
+	  var icon;
+	  var tempStr;
 	 
 		  thisDate = new Date(date1);
 		  thatDate = new Date(date2);
@@ -592,7 +634,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 	var tr = document.createElement("tr");
 	
 		for (var j = 0; j < colLength; j++) {
-		if((j==0&&i>2)&&(i%23!=2)||(i==0&&j>2)&&(j%6!=2))
+		if((j==0&&i>2)&&(i%26!=2)||(i==0&&j>2)&&(j%6!=2))
 		{
 		}
 		else
@@ -608,7 +650,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 			{
 				td.appendChild(document.createTextNode("Rooms"));
 			}
-			else if((i==2||i%23==2)&&j==0)
+			else if((i==2||i%26==2)&&j==0)
 			{
 				
 				
@@ -617,13 +659,17 @@ function createTable(numWeeks,remainder,date1,date2) {
 				input.type = "checkbox";
 				input.name = "roomid";
 				input.setAttribute("onclick","showCheckbox("+roomCnt+")");
-				input.value = rid + "!"+startdate+"!"+enddate+"!"+roomCnt+"!"+dump+"!"+mon+"!"+tue+"!"+wed+"!"+thu+"!"+fri+"!"+sat+"!"+course;
+				input.value = rid + "!"+startdate+"!"+enddate+"!"+roomCnt+"!"+dump+"!"+mon+"!"+tue+"!"+wed+"!"+thu+"!"+fri+"!"+sat+"!"+course+"!"+tutor;
 				td.appendChild(input);
 				
 				
 				td.appendChild(document.createTextNode(arr[roomCnt]["name"]));
+				if(arr[roomCnt]["type"])
+				{
+					td.appendChild(document.createTextNode("(multiroom area)"));
+				}
 				roomCnt++;
-				td.rowSpan="23";
+				td.rowSpan="26";
 			}
 			else if(i==0&&(j==2||j%6==2))
 			{
@@ -645,7 +691,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 			}
 			else if(j==1&&i>1)
 			{
-				if(timeCount%23==2)
+				if(timeCount%26==2)
 				{
 					timeCount=2;
 				}
@@ -672,7 +718,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 				timeInput = document.createElement("input");
 				timeInput.setAttribute("type","checkbox");
 				timeInput.className = "dis"+(roomCnt-1);
-				timeInput.style="display:none";
+				timeInput.style="visibility:hidden";
 				timeInput.value=time[timeCount-2];
 				timeInput.name = "time"+(roomCnt-1)+"[]";
 				td.appendChild(timeInput);
@@ -715,21 +761,69 @@ function createTable(numWeeks,remainder,date1,date2) {
 								{
 							if(arr[roomCnt-1]["booked"][coursebooking]["days"][dayname[j-2]] == 1)
 							{
-								if(i<25)
+								if(i<28)
 								{
 								if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[i-2] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[i-2])
 								{
 									flag=1;
-									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+" Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"]);
+									cohort = arr[roomCnt-1]["booked"][coursebooking]["coursename"];
+									if(arr[roomCnt-1]["booked"][coursebooking]["tutor"]==null || arr[roomCnt-1]["booked"][coursebooking]["tutor"]=="undefined")
+									{
+										tempStr = "";
+									}
+									else
+									{
+										tempStr = " Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"];
+									}
+									if(cohort=="other")
+									{
+									td.setAttribute("data-tooltip","Reason: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}
+									else
+									{
+									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}	
+									if(arr[roomCnt-1]["booked"][coursebooking]["pending"]=="w")
+									{
+										td.style.backgroundColor = "yellow";
+									}
+									else
+									{
+											td.style.backgroundColor = "red";
+									}
 								}
 								}
 								else
 								{
-									if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[(i-2)%23] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[(i-2)%23])
+									if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[(i-2)%26] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[(i-2)%26])
 								{
 									flag=1;
-									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+" Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"]);
-								}
+									cohort = arr[roomCnt-1]["booked"][coursebooking]["coursename"];
+									if(arr[roomCnt-1]["booked"][coursebooking]["tutor"]==null || arr[roomCnt-1]["booked"][coursebooking]["tutor"]=="undefined")
+									{
+										tempStr = "";
+									}
+									else
+									{
+										tempStr = " Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"];
+									}
+									if(cohort=="other")
+									{
+									td.setAttribute("data-tooltip","Reason: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}
+									else
+									{
+									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}
+if(arr[roomCnt-1]["booked"][coursebooking]["pending"]=="w")
+									{
+										td.style.backgroundColor = "yellow";
+									}
+									else
+									{
+											td.style.backgroundColor = "red";
+									}									
+									}
 								}
 							}
 								}
@@ -737,21 +831,69 @@ function createTable(numWeeks,remainder,date1,date2) {
 								{
 									if(arr[roomCnt-1]["booked"][coursebooking]["days"][dayname[(j-2)%6]] == 1)
 							{
-								if(i<25)
+								if(i<28)
 								{
 								if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[i-2] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[i-2])
 								{
 									flag=1;
-									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+" Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"]);
-								}
+									cohort = arr[roomCnt-1]["booked"][coursebooking]["coursename"];
+									if(arr[roomCnt-1]["booked"][coursebooking]["tutor"]==null || arr[roomCnt-1]["booked"][coursebooking]["tutor"]=="undefined")
+									{
+										tempStr = "";
+									}
+									else
+									{
+										tempStr = " Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"];
+									}
+									if(cohort=="other")
+									{
+									td.setAttribute("data-tooltip","Reason: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}
+									else
+									{
+									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}	
+									if(arr[roomCnt-1]["booked"][coursebooking]["pending"]=="w")
+									{
+										td.style.backgroundColor = "yellow";
+									}
+									else
+									{
+											td.style.backgroundColor = "red";
+									}
+									}
 								}
 								else
 								{
-									if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[(i-2)%23] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[(i-2)%23])
+									if(arr[roomCnt-1]["booked"][coursebooking]["classstarttime"] <= time[(i-2)%26] && arr[roomCnt-1]["booked"][coursebooking]["classendtime"] > time[(i-2)%26])
 								{
 									flag=1;
-									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+" Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"]);
-								}
+									cohort = arr[roomCnt-1]["booked"][coursebooking]["coursename"];
+									if(arr[roomCnt-1]["booked"][coursebooking]["tutor"]==null || arr[roomCnt-1]["booked"][coursebooking]["tutor"]=="undefined")
+									{
+										tempStr = "";
+									}
+									else
+									{
+										tempStr = " Tutor: "+arr[roomCnt-1]["booked"][coursebooking]["tutor"];
+									}
+									if(cohort=="other")
+									{
+									td.setAttribute("data-tooltip","Reason: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}
+									else
+									{
+									td.setAttribute("data-tooltip","Cohort: "+arr[roomCnt-1]["booked"][coursebooking]["coursename"]+tempStr);
+									}	
+									if(arr[roomCnt-1]["booked"][coursebooking]["pending"]=="w")
+									{
+										td.style.backgroundColor = "yellow";
+									}
+									else
+									{
+											td.style.backgroundColor = "red";
+									}
+									}
 								}
 							}
 								}
@@ -761,7 +903,14 @@ function createTable(numWeeks,remainder,date1,date2) {
 				}
 				if(flag==1)
 				{
-					td.appendChild(document.createTextNode("booked"));
+					if(cohort=="other")
+					{
+					td.appendChild(document.createTextNode("other"));
+					}
+					else
+					{
+						td.appendChild(document.createTextNode("class"));
+					}
 					td.className="tt";
 					span = document.createElement("span");
 					span.className="tt-content";
@@ -774,6 +923,7 @@ function createTable(numWeeks,remainder,date1,date2) {
 				
 				
 				}
+				cohort = "";
 				flag=0;
 			}
 		
@@ -805,7 +955,7 @@ function clearTables()
 function writeHeader() {
 	var header = document.getElementById("cohort");
 	var str;
-	str = course + " "+tutor +" ";
+	str = course + " "+tutorname +" ";
 	if(mon==1)
 	{
 		str+="Mon ";
@@ -905,22 +1055,21 @@ function changeDay(checkboxday) {
 createTable(weeks,remainder,startdate,enddate);
 	}
 function showCheckbox(roomnumber) {
-	var inputs = document.getElementsByClassName("dis");
-var style;var value;var temp;
+
 	$('.dis'+roomnumber).each(function(){
-		if($(this).css("display")=="none")
+		if($(this).css("visibility")=="hidden")
 		{
-			$(this).css("display","block");
+			$(this).css("visibility","visible");
 		}
 		else
 		{
-			$(this).css("display","none");
+			$(this).css("visibility","hidden");
 		}
 	});
 }
 
 </script>
-<form id="container" onsubmit='' action="./manager_recurring_view_script.php">
+<form id="container" onsubmit='return checkCheckbox()' action="./manager_recurring_view_script.php">
 <div id="booking">
 </div>
 <input type="submit" name="submit" value="submit" />
@@ -933,6 +1082,29 @@ createTable(weeks,remainder,startdate,enddate);
 
 
 writeHeader();
+function checkCheckbox() {
+	if($("body input[name='mon']:checkbox:checked,input[name='tue']:checkbox:checked,input[name='wed']:checkbox:checked,input[name='thu']:checkbox:checked,input[name='fri']:checkbox:checked,input[name='sat']:checkbox:checked").length == 0)
+{
+d = 5000;
+				alertify.set({ delay: d });
+				alertify.log("Check day please");
+	return false;
+}
+	if($("#booking input[name='roomid']:checkbox:checked").length != 1)
+{
+d = 5000;
+				alertify.set({ delay: d });
+				alertify.log("Check one room please");
+	return false;
+}
+	if($("#booking input:checkbox:checked").length <= 1)
+{
+d = 5000;
+				alertify.set({ delay: d });
+				alertify.log("Check any time slot please");
+	return false;
+}
+}
 </script>
 </div>
 </div>

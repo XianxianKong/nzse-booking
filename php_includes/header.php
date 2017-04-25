@@ -3,11 +3,11 @@
 <?php
 if($_SESSION["usertype"]==1)
 {
-echo "<a href='../admin_home/admin_home.php' class='header'></a>";
+echo "<a href='../admin_home/admin_home.php' class='header'><img src='../pic/logo.png'></a>";
 }
 else
 {
-	echo "<a href='../user_home/user_home.php' class='header'></a>";
+	echo "<a href='../user_home/user_home.php' class='header'><img src='../pic/logo.png'></a>";
 }
 ?>
 

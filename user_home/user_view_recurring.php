@@ -19,7 +19,7 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>recurring booking</h1>	
+				<h1>Recurring Booking</h1>	
 			
 <div id='error'>
 		<?php
@@ -101,6 +101,7 @@ $("#container").on('submit', function ()
 		});
 </script>
 </div>
+<?php include '../php_includes/footer.php'; ?>
 </body>
 </html>
 <?php
