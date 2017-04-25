@@ -20,3 +20,13 @@ function saveInlineEdit(editableObj,column,id,table) {
 		}
    });
 }
+
+function filter(filterValue,location,filterKey) {
+					// code for IE7+, Firefox, Chrome, Opera, Safari
+          if (filterValue == "all") {
+            window.location.href = "./admin_edit"+location+".php";
+          }else
+          {
+            window.location.href = "./admin_edit"+location+".php?"+filterKey+"id=" + filterValue;
+          }
+	}

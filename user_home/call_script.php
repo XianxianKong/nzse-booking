@@ -60,7 +60,7 @@
 			}
 			
 			}
-					$_SESSION['error'] = "booking made.".$cnt;
+					$_SESSION['error'] = "booking made.";
 			header('location: ./call.php');
 			exit();
 		}

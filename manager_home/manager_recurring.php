@@ -19,7 +19,7 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>recurring booking</h1>	
+				<h1>Recurring Booking</h1>	
 			
 <div id='error'>
 		<?php
@@ -47,8 +47,22 @@
 
 <label>Cohort:</label>
 <input type="text" name="cohort" value="" placeholder="cohort name" /><br />
-<label>Tutor:</label>
-<input type="text" name="tutor" value="" placeholder="tutor name" />
+<?php
+include '../php_script/connectDB.php';
+
+$sql="SELECT * FROM tutor";
+$result = mysqli_query($conn,$sql);
+
+echo "<label for='module'>Tutor: </label>
+<select name='tutor'>";
+echo "<option>Select a Tutor</option>";
+while($row = mysqli_fetch_array($result)) {
+	$tutorid = $row['tutorid'];
+	echo "<option value=".$tutorid; if(isset($_SESSION['tutorid'])) {if($_SESSION['tutorid']==$tutorid) {echo " selected";}} echo ">" .$row['firstname']." ".$row['lastname']."</option>";
+}
+echo "</select>";
+mysqli_close($conn);
+?>
 <?php
 include '../php_script/connectDB.php';
 
@@ -119,7 +133,7 @@ $("#container").on('submit', function ()
 				flag=false;
 			}
 			var tutor = document.forms["container"]["tutor"].value;
-			if (tutor == null || tutor == "") 
+			if (tutor == null || tutor == "Select a Tutor") 
 			{
 				d += 500;
 				alertify.set({ delay: d });
@@ -139,8 +153,8 @@ $("#container").on('submit', function ()
 		});
 </script>
 </div>
-<div id = "index_footer"> 
+
 <?php include '../php_includes/footer.php';?>
-</div>
+
 </body>
 </html>

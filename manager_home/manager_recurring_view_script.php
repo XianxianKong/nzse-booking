@@ -23,6 +23,7 @@
 				$thu = $result[8];
 				$fri = $result[9];
 				$sat = $result[10];
+				$tutor = $result[12];
 				$course = $result[11];
 	if(isset($_GET['time'.$timeValue]))
 	{
@@ -35,8 +36,8 @@
 		}
 		}
 		
-	$result = "INSERT INTO coursebooking(startdate,enddate,coursename,classstarttime,classendtime,roomid,daySat,dayMon,dayTue,dayWed,dayThu,dayFri)
-				VALUES ('$startdate','$enddate','$course','$starttime','$endtime','$roomid','$sat','$mon','$tue','$wed','$thu','$fri')";
+	$result = "INSERT INTO coursebooking(startdate,enddate,coursename,classstarttime,classendtime,roomid,daySat,dayMon,dayTue,dayWed,dayThu,dayFri,tutorid)
+				VALUES ('$startdate','$enddate','$course','$starttime','$endtime','$roomid','$sat','$mon','$tue','$wed','$thu','$fri','$tutor')";
 	if ($runquery = $conn->query($result))
 	{
 		

@@ -12,8 +12,6 @@
 	<?php $title="Edit Holiday"; ?>
 	<?php include '../php_includes/head_elements.php'; ?>
 	<?php include '../php_includes/alertbox.php'; ?>
-	<link rel="stylesheet" type="text/css" href="../css/stickyheader.css">
-	<link rel="stylesheet" type="text/css" href="../css/sidebar.css">
 </head>
 <body>
 <div id="page-container">
@@ -33,7 +31,7 @@
 		?>
 </div><!--error--><br />
 <div id="sidebar">
-	<a class='add' href='./admin_addholiday.php'><img src='../pic/Add.png' /></a>
+		<a class='add' href='./admin_addholiday.php'><img src='../pic/Add.png' /><span></span></a>
 	</div>
 <div class="tables">
 <?php
@@ -62,7 +60,8 @@ include '../php_script/connectDB.php';
 	include '../php_script/connectDB.php';
 	$result = "SELECT h.* FROM holiday h";
 		echo "<table id='student_resit' class='border'>
-		<thead><tr>
+		<thead>
+		<tr>
 		<th></th>
 		<th>Holiday</th>
 		<th>Date (d-m-y)</th>
@@ -83,7 +82,6 @@ include '../php_script/connectDB.php';
 			}
 		}
 		echo "</table>";
-		
 		mysqli_close($conn);
 		?>
 </div>
@@ -103,7 +101,6 @@ function confirmAction (id) {
 </script>
 
 <br><br><br><br><br>
-<script src="../js/stickyheader.js"></script>
 <?php include '../php_includes/footer.php';?>
 </body>
 </html>

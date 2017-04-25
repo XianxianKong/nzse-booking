@@ -83,7 +83,7 @@ $count=0;
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Add Room</h1>	
+				<h1>Room</h1>	
 			
 <div id='error'>
 		<?php
@@ -100,7 +100,7 @@ $count=0;
 				
 		?>
 </div><!--error--><br />
-<div id="container">
+<div id="container_form">
 <div class="form">
 <form id="container" action="./admin_addroom_script.php">
 <fieldset>
@@ -244,8 +244,6 @@ function changeOptions(campusid) {
 		}
 
 		div.appendChild(label);
-		div.appendChild(label2);
-		div.appendChild(input);
 		div.appendChild(label5);
 		div.appendChild(input4);
 		div.appendChild(label3);
@@ -297,7 +295,7 @@ mysqli_close($conn);
 <label><input type="radio" id="dis" name="disability" value="0" onclick="" checked>no</label>
 <label><input type="radio" id="nodis" name="disability" value="1" onclick="" >yes</label>
 
-<div class="resources"><div class="resource1"><p class="0">0</p>
+<div class="resources"><div class="resource1"><p class="0"></p>
 	<label>Resource</label>
 	<input id="resourceInput1" type="text" placeholder="If there is any" name="resources" value="<?php if(isset($FixedResources)) {echo $FixedResources;} ?>">
 </div>

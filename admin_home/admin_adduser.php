@@ -55,7 +55,7 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Calendar</h1>	
+				<h1>User</h1>	
 		
 <div id='error'>
 		<?php
@@ -125,8 +125,8 @@ else {echo "<input type='submit' name='new' value='submit'>";}
 	unset($_SESSION['uid'],$_SESSION['email']);
 ?>
 <br><br>
-<div id = "index_footer"> 
+
 <?php include '../php_includes/footer.php';?>
-</div>
+
 </body>
 </html>

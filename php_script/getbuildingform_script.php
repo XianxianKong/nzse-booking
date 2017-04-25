@@ -12,7 +12,7 @@ $result = mysqli_query($conn,$sql);
 }
 echo "<label for='buildingid'>Building: </label>
 <select name='buildingid' id='buildingid'>";
-echo "<option>Select a building id</option>";
+echo "<option>Select a building</option>";
 while($row = mysqli_fetch_array($result)) {
 	$buildingid = $row['buildingid'];
 	echo "<option value=".$buildingid; if(isset($_SESSION['buildingid'])) {if($_SESSION['buildingid']==$buildingid) {echo " selected";}} echo ">" .$row['buildingname']."</option>";
