@@ -58,7 +58,7 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Calendar</h1>	
+				<h1>Holiday</h1>	
 	
 <div id='error'>
 		<?php
@@ -127,8 +127,8 @@ if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit
 		</script>
 
 <br><br>
-<div id = "index_footer"> 
+
 <?php include '../php_includes/footer.php';?>
-</div>
+
 </body>
 </html>

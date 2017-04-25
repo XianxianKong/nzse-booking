@@ -10,12 +10,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<?php $title="Edit Booking"; ?>
-	<?php include '../php_includes/head_elements.php';?>
-	<?php include '../php_includes/alertbox.php';?>
+	<?php include '../php_includes/head_elements.php'; ?>
+	<?php include '../php_includes/alertbox.php'; ?>
 </head>
 <body>
 <div id="page-container">
-			<?php include '../php_includes/header.php';?>
+			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
 				<h1>Edit Booking</h1>	
@@ -26,7 +26,6 @@
 				{	
 					print $_SESSION['error'];	
 					unset($_SESSION['error']);
-					
 				}
 				
 		?>
@@ -48,27 +47,28 @@ include '../php_script/connectDB.php';
 				$bookingstatus = $row['bookingstatus'];
 				}
 			}
-			
 			if(!$runquery)
-			{		
+			{
 					$_SESSION['error'] = "selecting query wrong";
 			header('location: ./admin_editbooking.php');
 			exit();
 			}
-	$result2 = "DELETE FROM booking WHERE bookingid=$deletingid";
-	if($runquery2=mysqli_query($conn,$result2))
-			{
-				
-			$result3 = "DELETE FROM bookinginfo WHERE bookingid='".$deletingid."'";
-			if($runquery3=mysqli_query($conn,$result3))
+	$result = "UPDATE booking SET bookingstatus = 'cancelled' WHERE bookingid='".$deletingid."'";
+	if($runquery2=mysqli_query($conn,$result))
 			{
 				$date = date("Y-m-d");
 				$userid = $_SESSION['userid'];
-				$result4 = "INSERT INTO bookinglog(bookingid,userid,date)
-				VALUES ('$bookingid','$userid','$date')";
+				$result4 = "INSERT INTO bookinglog(bookingid,userid,date,type)
+				VALUES ('$bookingid','$userid','$date','deleted')";
 				if($runquery4=mysqli_query($conn,$result4))
 				{
-					$_SESSION['error'] = "updated successfully";
+					$_SESSION['did'] = $deletingid;
+					include "../sendEmail.php";
+					
+		
+			
+			$_SESSION['error'] = "updated successfully";
+			
 					header('location: ./admin_editbooking.php');
 					exit();
 				}
@@ -79,18 +79,10 @@ include '../php_script/connectDB.php';
 					exit();
 				}
 			}
-			if(!$runquery3)
-			{
-					$_SESSION['error'] = "booking info query wrong";
-			header('location: ./admin_editbooking.php');
-			exit();
-			}
-			
-			}
 			if(!$runquery2)
 			{
 			
-				$_SESSION['error'] = "query wrong".$deletingid;
+				$_SESSION['error'] = "query wrong";
 			header('location: ./admin_editbooking.php');
 			exit();
 			}
@@ -102,9 +94,12 @@ include '../php_script/connectDB.php';
 	$result = "UPDATE booking SET bookingstatus = 'confirmed' WHERE bookingid='".$confirmingid."'";
 	if($runquery=mysqli_query($conn,$result))
 			{
-			include '../sendEmail.php';
-			unset($_GET['confirmingid']);
+			$_SESSION['cid'] = $confirmingid;
+			include "../sendEmail.php";
+			
+		
 			$_SESSION['error'] = "updated successfully";
+			
 			header('location: ./admin_editbooking.php');
 			exit();
 			}
@@ -185,11 +180,11 @@ include '../php_script/connectDB.php';
 		$bookingid = $value['bookingid'];
 				$did = json_encode($bookingid);
 				echo "<tr>";
-				echo "<td><a href='javascript:confirmAction($did)'><img src='../pic/confirm.png' /></a><a href='javascript:deleteAction($did)'><img src='../pic/delete.png' /></a></td>";
+				echo "<td><a href='javascript:confirmAction($did)'><img src='../pic/confirm.png' /></a><a href='javascript:deleteAction($did)'><img src='../pic/cancel.png' /></a></td>";
 				echo "<td>";
 				foreach($value["child"] as $subkey)
 					{
-					echo $subkey['roomname']," - (".$subkey['roomid'].")<br>\n";
+					echo $subkey['roomname'],"<br>\n";
 					}
 				
 				echo "</td>";

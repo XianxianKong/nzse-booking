@@ -5,61 +5,22 @@
 	}
 	
 ?>
-<!--bring values into form-->
-<?php
-	if(isset($_GET['copy']) || isset($_GET['edit'])|| isset($_SESSION['errorid']))
-	{
-		if(isset($_GET['copy']))
-		{
-		$buildingid=$_GET['copy'];
-		}
-		elseif(isset($_GET['edit']))
-		{
-		$buildingid=$_GET['edit'];
-		}
-		else
-		{
-			$buildingid=$_SESSION['errorid'];
-			unset($_SESSION['errorid']);
-		}
-	include '../php_script/connectDB.php';
-	$result = "SELECT b.* FROM building b WHERE b.buildingid='".$buildingid."'";
-		if($runquery=mysqli_query($conn,$result))
-		{
-			while($row = $runquery->fetch_assoc())
-			{
-				$_SESSION['campusid']=$row['campusid'];
-				$_SESSION['buildingid']=$row['buildingid'];
-				$_SESSION['buildingname']=$row['buildingname'];
-		
-			}
-		}
-		else
-		{
-			$_SESSION['error']="couldnt bring copied data";
-		}
-		mysqli_close($conn);
-	}
-		
-?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<?php $title="Add building"; ?>
+	<?php $title="Booking"; ?>
 	<?php include '../php_includes/head_elements.php'; ?>
 	<?php include '../php_includes/alertbox.php'; ?>
 </head>
 <body>
 <div id="page-container">
-
-
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Building</h1>	
-	
+				<h1>Booking</h1>	
+			
 <div id='error'>
 		<?php
 				if(isset($_SESSION['error']))
@@ -76,14 +37,13 @@
 		?>
 </div><!--error--><br />
 <div id="container">
-
-
 <div class="form">
-<form id="form1" action="./admin_addbuilding_script.php">
- <fieldset>
+<form id="container" action="./admin_view_recurring_view.php">
+<fieldset>
+<label for='startdate'>Start Week:</label>
+<input type="date" name="startdate" value="" />
 
-<label for="buildingname">Building name:</label>
-<input type="text" name="buildingname" value="<?php if(isset($_SESSION['buildingname'])) echo $_SESSION['buildingname'];?>">
+
 
 <?php
 include '../php_script/connectDB.php';
@@ -102,30 +62,44 @@ echo "</select>";
 mysqli_close($conn);
 ?>
 </fieldset>
-
-<?php if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit' >";$_SESSION['updatingid']=$_SESSION['buildingid'];} 
-else {echo "<input type='submit' name='new' value='submit' >";}?>
-
+<input type="submit" name="submit" value="View Available" />
 </form>
 </div>
 </div>
-		</div>
-		</div>
 <script>
-	$("#form1").on('submit', function () 
+$("#container").on('submit', function () 
 		{	
+		
 			var flag;
 			var d = 5000;
-		
-			var buildingname = document.forms["form1"]["buildingname"].value;
-			if (buildingname == null || buildingname == "") 
+			var startdate = document.forms["container"]["startdate"].value;
+			if (startdate == null || startdate == "") 
 			{
 				d += 500;
 				alertify.set({ delay: d });
-				alertify.log("building name is required");
+				alertify.log("startdate is required");
 				flag=false;
 			}
-			var campusid = document.forms["form1"]["campusid"].value;
+			var temp = new Date(startdate);
+			temp = temp.getDay();
+			if (temp != 1) 
+			{
+				d += 500;
+				alertify.set({ delay: d });
+				alertify.log("startweek muust start from monday");
+				flag=false;
+			}
+			
+			
+			var course = document.forms["container"]["cohort"].value;
+			if (course == null || course == "") 
+			{
+				d += 500;
+				alertify.set({ delay: d });
+				alertify.log("cohort is required");
+				flag=false;
+			}
+			var campusid = document.forms["container"]["campusid"].value;
 			if (campusid == null || campusid == "Select a campus") 
 			{
 				d += 500;
@@ -133,16 +107,19 @@ else {echo "<input type='submit' name='new' value='submit' >";}?>
 				alertify.log("campus is required");
 				flag=false;
 			}
-			
+
 			return flag;
 		});
-		</script>
-<?php
-	unset($_SESSION['buildingid'],$_SESSION['campusid'],$_SESSION['buildingname']);
-?>
-<br><br>
+</script>
+</div>
+
 
 <?php include '../php_includes/footer.php';?>
 
+
 </body>
 </html>
+<?php
+
+$_SESSION["moreDays"]=0;
+?>

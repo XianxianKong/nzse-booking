@@ -8,10 +8,14 @@
 	}
 	$usertype=$_GET['usertype'];
 	$userid=$_GET['userid'];
-	$useraccesslevel=$_GET['useraccesslevel'];
+	
 	$email=$_GET['email'];
 	
-	//checking user id
+
+	 //adding new
+	if(isset($_GET['new']))
+	{
+			//checking user id
  $query = "SELECT COUNT(*) as cnt FROM user WHERE userid= '".$userid."'";
 $runquery = mysqli_query($conn, ($query));
 $row = mysqli_fetch_array($runquery); 
@@ -24,13 +28,10 @@ if($cnt >= 1)
 	header('location: ./admin_adduser.php');
 	exit();
  }
-	 //adding new
-	if(isset($_GET['new']))
-	{
 	$password="password";
 	$password = sha1($password);
-	$result = "INSERT INTO user(usertype,userid,useraccesslevel,password,email)
-				VALUES ('$usertype','$userid','$useraccesslevel','$password','$email')";
+	$result = "INSERT INTO user(usertype,userid,password,email)
+				VALUES ('$usertype','$userid','$password','$email')";
 		
 		if ($runquery = $conn->query($result))
 	{
@@ -49,7 +50,7 @@ if($cnt >= 1)
 	if(isset($_GET['submit']))
 	{
 	
-	$result = "UPDATE user SET usertype='$usertype',useraccesslevel='$useraccesslevel',email='$email' WHERE userid='$updatingid'";
+	$result = "UPDATE user SET usertype='$usertype',email='$email' WHERE userid='$updatingid'";
 		
 		if ($runquery = $conn->query($result))
 	{

@@ -137,8 +137,8 @@ if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit
 		</script>
 
 <br><br>
-<div id = "index_footer"> 
+
 <?php include '../php_includes/footer.php';?>
-</div>
+
 </body>
 </html>

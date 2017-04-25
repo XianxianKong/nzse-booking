@@ -12,8 +12,6 @@
 	<?php $title="Edit campus"; ?>
 	<?php include '../php_includes/head_elements.php'; ?>
 	<?php include '../php_includes/alertbox.php'; ?>
-	<link rel="stylesheet" type="text/css" href="../css/stickyheader.css">
-	<link rel="stylesheet" type="text/css" href="../css/sidebar.css">
 </head>
 <body>
 <div id="page-container">
@@ -33,7 +31,7 @@
 		?>
 </div><!--error--><br />
 <div id="sidebar">
-		<a class='add' href='./admin_addcampus.php'><img src='../pic/Add.png' /></a>
+		<a class='add' href='./admin_addcampus.php'><img src='../pic/Add.png' /><span></span></a>
 	</div>
 <div class="tables">
 <?php
@@ -73,7 +71,8 @@ if($cnt >= 1)
 	include '../php_script/connectDB.php';
 	$result = "SELECT c.* FROM campus c";
 		echo "<table id='student_resit' class='border'>
-		<thead><tr>
+		<thead>
+		<tr>
 		<th></th>
 		<th>Campus</th>
 		<th>Address</th>
@@ -92,14 +91,15 @@ if($cnt >= 1)
 				$did = json_encode($row['campusid']);
 				echo "<tr>";
 				echo "<td><a href='./admin_addcampus.php?edit=$campusid'><img src='../pic/edit.png' /></a> <a href='./admin_addcampus.php?copy=$campusid'><img src='../pic/copy.png' /></a> <a href='javascript:confirmAction($did)'><img src='../pic/delete.png' /></a></td>";
-				echo "<td contenteditable=\"true\" data-old-value='".$row['campusname']."' onBlur=\"saveInlineEdit(this,'campusname','".$row['campusid']."','campus')\" onClick=\"highlightEdit(this);\">".$row['campusname']."</td>";
-				echo "<td contenteditable=\"true\" data-old-value='".$row['address']."' onBlur=\"saveInlineEdit(this,'address','".$row['campusid']."','campus')\" onClick=\"highlightEdit(this);\">".$row['address']."</td>";
+
+				echo "<td contenteditable=\"true\" data-old-value='".$row['campusname']."' onBlur=\"saveInlineEdit(this,'campusname','".$row['campusid']."','campus')\" onClick=\"highlightEdit(this);\">" . $row['campusname']."</td>";
+				echo "<td contenteditable=\"true\" data-old-value='".$row['address']."' onBlur=\"saveInlineEdit(this,'address','".$row['campusid']."','campus')\" onClick=\"highlightEdit(this);\">" . $row['address'] ."</td>";
+
 				echo "</tr>";
 			}
 		}
 
 		echo "</table>";
-		
 		mysqli_close($conn);
 ?>
 </div>
@@ -119,7 +119,6 @@ function confirmAction (id) {
 </script>
 
 <br><br><br><br><br>
-<script src="../js/stickyheader.js"></script>
 <?php include '../php_includes/footer.php';?>
 </body>
 </html>

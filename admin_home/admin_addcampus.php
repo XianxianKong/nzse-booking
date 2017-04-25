@@ -1,9 +1,9 @@
 <?php session_start();?>
-<?php
+<?php 
 	if(!isset($_SESSION['usertype'])|| $_SESSION['usertype']!= 1){
 		header('location:../error_page.php');
 	}
-
+	
 ?>
 <!--bring values into form-->
 <?php
@@ -31,7 +31,7 @@
 				$_SESSION['campusname']=$row['campusname'];
 				$_SESSION['campusid']=$row['campusid'];
 				$_SESSION['address']=$row['address'];
-
+			
 			}
 		}
 		else
@@ -40,9 +40,9 @@
 		}
 		mysqli_close($conn);
 	}
-
+		
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -56,16 +56,16 @@
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Calendar</h1>
-
+				<h1>Campus</h1>	
+			
 <div id='error'>
 		<?php
 				if(isset($_SESSION['error']))
-				{
-					print $_SESSION['error'];
+				{	
+					print $_SESSION['error'];	
 					unset($_SESSION['error']);
 				}
-
+				
 		?>
 </div><!--error--><br />
 <div id="container">
@@ -82,7 +82,7 @@
 <input type="text" name="address" value="<?php if(isset($_SESSION['address'])) echo $_SESSION['address'];?>">
 </fieldset>
 
-<?php if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit'>";$_SESSION['updatingid']=$_SESSION['campusid'];}
+<?php if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit'>";$_SESSION['updatingid']=$_SESSION['campusid'];} 
 else {echo "<input type='submit' name='new' value='submit'>";}?>
 
 </form>
@@ -91,13 +91,13 @@ else {echo "<input type='submit' name='new' value='submit'>";}?>
 		</div>
 		</div>
 <script>
-	$("#form1").on('submit', function ()
-		{
+	$("#form1").on('submit', function () 
+		{	
 			var flag;
 			var d = 5000;
-
+			
 			var campusname = document.forms["form1"]["campusname"].value;
-			if (campusname == null || campusname == "")
+			if (campusname == null || campusname == "") 
 			{
 				d += 500;
 				alertify.set({ delay: d });
@@ -105,7 +105,7 @@ else {echo "<input type='submit' name='new' value='submit'>";}?>
 				flag=false;
 			}
 			var address = document.forms["form1"]["address"].value;
-			if (address == null || address == "")
+			if (address == null || address == "") 
 			{
 				d += 500;
 				alertify.set({ delay: d });
@@ -120,8 +120,8 @@ else {echo "<input type='submit' name='new' value='submit'>";}?>
 	unset($_SESSION['campusname'],$_SESSION['campusid'],$_SESSION['address']);
 ?>
 <br><br>
-<div id = "index_footer">
+
 <?php include '../php_includes/footer.php';?>
-</div>
+
 </body>
 </html>

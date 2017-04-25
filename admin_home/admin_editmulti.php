@@ -8,9 +8,14 @@
 <!--bring values into form-->
 <?php
 $count=0;
+$childResourceCount=0;
 	if(isset($_GET['copy']) || isset($_GET['edit']) || isset($_SESSION['errorid']))
 	{
+		$resources = array();
+		$comparing = array();
 		
+		$data=array();
+		$count2=0;
 		if(isset($_GET['copy']))
 		{
 		$roomid=$_GET['copy'];
@@ -21,11 +26,13 @@ $count=0;
 		}
 		else
 		{
-			$roomid=$_SESSION['errorid'];
+			$_GET['edit']=$_SESSION['errorid'];
+			$roomid = $_GET['edit'];
 			unset($_SESSION['errorid']);
 		}
 	include '../php_script/connectDB.php';
 	$result = "SELECT r.* FROM room r WHERE r.roomid='".$roomid."'";
+	$result2 = "SELECT m.* FROM multiroomchild m WHERE m.roomid='".$roomid."' ORDER BY multiroomchildid";
 		if($runquery=mysqli_query($conn,$result))
 		{
 			while($row = $runquery->fetch_assoc())
@@ -36,36 +43,35 @@ $count=0;
 				$buildingid=$row['buildingid'];
 				$floornumber=$row['floornumber'];
 				$capacity=$row['capacity'];
-				$disability=$row['disability'];
-				$FixedResources=$row['fixedresources'];
+				
+				$FixedResources= $row['fixedresources'];
 			}
 		}
 		else
 		{
 			$_SESSION['error']="couldnt bring copied data";
 		}
+		if($runquery2=mysqli_query($conn,$result2))
+		{
+			$i2=0;
+			while($row2 = $runquery2->fetch_assoc())
+			{
+				
+				$count2++;$i2++;
+				
+				$data["data".$i2]['multiroomchildid']=$row2['multiroomchildid'];
+				$data["data".$i2]['roomname']=$row2['roomname'];
+				$data["data".$i2]['capacity']=$row2['capacity'];
+				
+				$data["data".$i2]['FixedResources']=$row2['fixedresources'];
+				
+			}
+		}
+		else
+		{
+			$_SESSION['error']="couldnt bring copied data from area query";
+		}
 		mysqli_close($conn);
-	}
-	$data=array();
-	if(isset($_SESSION["addingfailid"]))
-	{
-		
-		$childnum=$_SESSION['childnum'] ;
-		for($i = 1; $i <= $childnum;$i++)
-				{
-					$data["roomid".$i]=$_SESSION['roomid'.$i];
-					$data["roomname".$i]=$_SESSION['roomname'.$i];
-					$data["capacity".$i]=$_SESSION['capacity'.$i];
-					$data["FixedResources".$i]=$_SESSION['FixedResources'.$i];
-					unset($_SESSION['roomid'.$i],$_SESSION['roomname'.$i],$_SESSION['capacity'.$i],$_SESSION['FixedResources'.$i]);
-				}
-		$roomid=$_SESSION["addingfailid"];
-		$roomname = $_SESSION['roomname'];
-		$capacity = $_SESSION['capacity'];
-		$disability = $_SESSION['disability'];
-		$FixedResources = $_SESSION['FixedResources'];
-		$floornumber = $_SESSION['floornumber'];
-		$buildingid = $_SESSION['buildingid'];
 	}
 		
 ?>
@@ -83,7 +89,7 @@ $count=0;
 			<?php include '../php_includes/header.php'; ?>
 			<?php include '../php_includes/nav.php'; ?>
 			<div class="col-6 col-m-9 content">
-				<h1>Room</h1>	
+				<h1>Calendar</h1>	
 			
 <div id='error'>
 		<?php
@@ -100,20 +106,8 @@ $count=0;
 				
 		?>
 </div><!--error--><br />
-<div id="container_form">
-<div class="form">
-<form id="container" action="./admin_addroom_script.php">
-<fieldset>
-<label for='roomtype'>Room type:</label>
-<label><input type="radio" name="roomtype" value="0" onclick="clearAreas()" >Single</label>
-<label><input type="radio" name="roomtype" value="1" onclick="askAreas()" <?php if(isset($_SESSION["addingfailid"])) {echo "checked";}?>>Multi</label>
-<div id="askAreas">
-</div>
-
-
-<label for="roomname">Room name:</label>
-<input type="text" name="roomname" value="<?php if(isset($roomname)) echo $roomname;?>" placeholder="Room name">
-<script>
+<script type='text/javascript'>
+var alreadyRun = false;
 <?php
 $js_data = json_encode($data);
 echo "var data = ".$js_data.";\n";
@@ -131,13 +125,10 @@ function changeOptions(campusid) {
         xmlhttp.open("GET","../php_script/getbuildingform_script.php?campusid="+campusid,true);
         xmlhttp.send();
     } 
+	
 	function askAreas() {
-		var check = document.getElementById("askareas");
-		if(check == null)
-		{
 		var div = document.getElementById("askAreas");
-		
-		
+		div.innerHTML='';
 		var array = ["2","3","4","5"];
 		var input7 = document.createElement("select");
 		input7.id = "askareas";
@@ -150,17 +141,19 @@ function changeOptions(campusid) {
 		for(var i=0;i<array.length;i++)
 		{
 			var option = new Option(array[i],array[i]);
+			option.value=array[i];
 			input7.appendChild(option);
 		}
 		addAreas(2);
-		}
+		
 		
 	}
 	function clearAreas() {
 		var div = document.getElementById("child");
 		div.innerHTML='';
-		var div2 = document.getElementById("askAreas");
-		div2.innerHTML='';
+		div = document.getElementById("askAreas");
+		div.innerHTML='';
+		
 	}
 	function decideAreas() {
 		var areas;
@@ -168,6 +161,7 @@ function changeOptions(campusid) {
 		{
 		var select = document.getElementById("askareas");
 		areas = select.options[select.selectedIndex].value;
+		
 		addAreas(areas);
 		
 		}
@@ -181,7 +175,7 @@ function changeOptions(campusid) {
 		var resourceDiv = document.createElement("div");
 		resourceDiv.className = "resources";
 		var inputDiv = document.createElement("div");
-		inputDiv.className = "resource"+number;
+		inputDiv.className = "resource1";
 		var num = document.createElement("p");
 		num.innerHTML = number;
 		num.className = number;
@@ -191,10 +185,11 @@ function changeOptions(campusid) {
 		input.type="text";
 		input.name = "resources"+number;
 		input.placeholder="If there is any";
-		if(data["FixedResources"+number])
+		if(data["data"+number])
 		{
-		input.value = data["FixedResources"+number];
+		input.value = data["data"+number]["FixedResources"];
 		}
+		
 		inputDiv.appendChild(num);
 	inputDiv.appendChild(label);
 	inputDiv.appendChild(input);
@@ -203,10 +198,7 @@ function changeOptions(campusid) {
 	}
 	function addAreas(areas) {
 		var div = document.getElementById("child");
-		if(div.innerHTML!="")
-		{
-			div.innerHTML="";
-		}
+		div.innerHTML='';
 		for(var i=1;i<=areas;i++)
 		{
 		
@@ -214,13 +206,15 @@ function changeOptions(campusid) {
 		label.innerHTML ="\n Room #"+ i + "\n";
 		var label2 = document.createElement("label");
 		label2.innerHTML = "room id:";
-		var input = document.createElement("input");
-		input.type="text";
-		input.id="roomid"+i;
-		input.name="roomid"+i;
-		if(data["roomid"+i])
+		var hidden = document.createElement("input");
+		hidden.type="text";
+		hidden.id="roomid"+i;
+		hidden.name="roomid"+i;
+		var input = document.createElement("p");
+		if(data["data"+i])
 		{
-		input.value = data["roomid"+i];
+		input.innerHTML=data["data"+i]["multiroomchildid"];
+		hidden.value=data["data"+i]["multiroomchildid"];
 		}
 		var label5 = document.createElement("label");
 		label5.innerHTML = "room name:";
@@ -228,9 +222,9 @@ function changeOptions(campusid) {
 		input4.type="text";
 		input4.id="roomname"+i;
 		input4.name="roomname"+i;
-		if(data["roomname"+i])
+		if(data["data"+i])
 		{
-		input.value = data["roomname"+i];
+		input4.value=data["data"+i]["roomname"];
 		}
 		var label3 = document.createElement("label");
 		label3.innerHTML = "capacity:";
@@ -238,22 +232,47 @@ function changeOptions(campusid) {
 		input2.type="number";
 		input2.id="capacity"+i;
 		input2.name="capacity"+i;
-		if(data["capacity"+i])
+		if(data["data"+i])
 		{
-		input.value = data["capacity"+i];
+		input2.value=data["data"+i]["capacity"];
 		}
-
+		 input2.max=1000;
+		input2.min=0;
+		
 		div.appendChild(label);
+		
 		div.appendChild(label5);
 		div.appendChild(input4);
 		div.appendChild(label3);
 		div.appendChild(input2);
+		
 		
 		var subdiv = createResource(i);
 		div.appendChild(subdiv);
 	}
 	}
 </script>
+<div id="container">
+<div class="form">
+<form id="container" action="./admin_addroom_script.php">
+<fieldset>
+<label for='roomtype'>Room type:</label>
+<label><input type="radio" name="roomtype" value="0" onclick="clearAreas()">Single</label>
+<label><input type="radio" name="roomtype" value="1" onclick="askAreas()" checked>Multi</label>
+<div id="askAreas">
+<label>How many areas?</label>
+<select name="askareas" id="askareas" onclick="decideAreas();editingResource();">
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</div>
+
+
+<label for="roomname">Room name:</label>
+<input type="text" name="roomname" value="<?php if(isset($roomname)) echo $roomname;?>" placeholder="Room name">
+
 <?php
 include '../php_script/connectDB.php';
 $sql="SELECT * FROM campus";
@@ -263,8 +282,7 @@ echo "<label for='campusid'>Campus: </label>
 echo "<option>Any</option>";
 while($row = mysqli_fetch_array($result)) {
 	$currentid = $row['campusid'];
-
-	echo "<option value='$currentid'"; if(isset($campusid)) {if($campusid==$currentid) {echo " selected";}} echo ">" .$row['campusname']."</option>";
+	echo "<option value='".$currentid."'"; if(isset($campusid)) {if($campusid==$currentid) {echo " selected";}} echo ">" .$row['campusname']."</option>";
 }
 echo "</select>";
 mysqli_close($conn);
@@ -289,19 +307,25 @@ mysqli_close($conn);
 <input type="text" name="floornumber" value="<?php if(isset($floornumber)) echo $floornumber;?>">
 
 <label for="capacity">Capacity:</label>
-<input type="text" name="capacity" value="<?php if(isset($capacity)) echo $capacity;?>">
+<input type="number" min="0" max="1000" name="capacity" value="<?php if(isset($capacity)) echo $capacity;?>">
 
-<label for='disability'>Disability:</label>
-<label><input type="radio" id="dis" name="disability" value="0" onclick="" checked>no</label>
-<label><input type="radio" id="nodis" name="disability" value="1" onclick="" >yes</label>
 
-<div class="resources"><div class="resource1"><p class="0"></p>
+<div class="resources"><div class="resource1"><p class="0">0</p>
 	<label>Resource</label>
 	<input id="resourceInput1" type="text" placeholder="If there is any" name="resources" value="<?php if(isset($FixedResources)) {echo $FixedResources;} ?>">
 </div>
 </div>
-
 <div id="child">
+<script>
+var howManyAreas;
+if(!alreadyRun)
+{
+	howManyAreas = <?php echo $count2; ?>;
+addAreas(howManyAreas);
+$('#askareas').val(howManyAreas);
+alreadyRun=true;
+}
+</script>
 </div>
 </fieldset>
 <?php if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit'>"; $_SESSION['updatingid']=$roomid;} else {echo "<input type='submit' name='new' value='submit'>";}
@@ -312,21 +336,8 @@ mysqli_close($conn);
 </div>
 		</div>
 		</div>
-		
-<script>
-<?php
-if(isset($_SESSION["addingfailid"]))
-	{
-		echo "var howManyAreas = ".$_SESSION['childnum'].";\n";
-		echo "addAreas(howManyAreas);\n";
-		echo "$('#askareas').val(howManyAreas);";
-	}
-	if(isset($disability))
-	{
-		echo "$('#dis').prop('checked', false);\n";
-		echo "$('#nodis').prop('checked', true);\n";
-	}
-?>
+		<script>
+
 	$("#container").on('submit', function () 
 		{	
 		
@@ -360,7 +371,7 @@ if(isset($_SESSION["addingfailid"]))
 			{
 				d += 500;
 				alertify.set({ delay: d });
-				alertify.log("building is required");
+				alertify.log("building id is required");
 				flag=false;
 			}
 			var floornumber = document.forms["container"]["floornumber"].value;
@@ -379,11 +390,12 @@ if(isset($_SESSION["addingfailid"]))
 				alertify.log("capacity is required");
 				flag=false;
 			}
+			
 			if(num)
 			{
-			for(var i=1;i<=num;i++)
+for(var i=1;i<=num;i++)
 			{
-				
+			
 			roomname1[i] = document.forms["container"]['roomname'+i].value;
 			if (roomname1[i] == null || roomname1[i] == "") 
 			{
@@ -405,16 +417,12 @@ if(isset($_SESSION["addingfailid"]))
 			
 			
 			}
-		
+			
 			
 			return flag;
 		});
 		</script>
 		<br><br><br><br><br><br><br><br>
-<?php
-	$data = array();
-	unset($_SESSION['roomid'],$_SESSION['childnum'],$_SESSION["addingfailid"]);
-?>
 <?php include '../php_includes/footer.php';?>
 </body>
 </html>

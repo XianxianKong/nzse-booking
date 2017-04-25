@@ -100,10 +100,19 @@ if($cnt < 1)
 	{
 		if($roomtype == 1)
 		{
+			$result2 = "SELECT b.roomid FROM room b where b.buildingid = '$buildingid' AND b.roomname = '$roomname' AND b.roomtype='$roomtype' AND b.fixedResources='$FixedResources' AND b.capacity='$capacity' AND b.floornumber='$floornumber'";
+		if ($runquery = $conn->query($result2))
+		{
+			while($row = $runquery->fetch_assoc())
+			{
+			$roomid = $row['roomid'];
+			}
+		}
 			for($i = 1; $i <= $childnum;$i++)
 		{
-			$query = "INSERT INTO multiroomchild(capacity,roomid,roomname,fixedresources)
-						VALUES ('".${"capacity".$i}."','$roomid','".${"roomname".$i}."','".${"FixedResources".$i}."')";
+			$multiroomchildid = $roomid.".".$i;
+			$query = "INSERT INTO multiroomchild(multiroomchildid,capacity,roomid,roomname,fixedresources)
+						VALUES ('$multiroomchildid','".${"capacity".$i}."','$roomid','".${"roomname".$i}."','".${"FixedResources".$i}."')";
 			$runquery = mysqli_query($conn, ($query));
 			if(!$runquery)
 			{
@@ -146,8 +155,9 @@ if($cnt < 1)
 					}
 		for($i = 1; $i <= $childnum;$i++)
 		{		
+	$multiroomchildid = $updatingid.".".$i;
 			$insertChild = "INSERT INTO multiroomchild(multiroomchildid,capacity,roomid,roomname,fixedresources)
-						VALUES ('".${"capacity".$i}."','$updatingid','".${"roomname".$i}."','".${"FixedResources".$i}."')";
+						VALUES ('$multiroomchildid','".${"capacity".$i}."','$updatingid','".${"roomname".$i}."','".${"FixedResources".$i}."')";
 					if ($runquery = $conn->query($insertChild))
 					{
 					}

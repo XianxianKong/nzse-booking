@@ -29,7 +29,7 @@
 			while($row = $runquery->fetch_assoc())
 			{
 				
-				$tutor=$row['tutor'];
+				$tutor=$row['tutorid'];
 		
 			}
 		}
@@ -81,16 +81,29 @@
 <form id="container" action="./admin_addrecurring_script.php">
  <fieldset>
 
-<label for="tutor">Tutor:</label>
-<input type="text" name="tutor" value="<?php if(isset($tutor)) echo $tutor;?>">
+<?php
+include '../php_script/connectDB.php';
 
+$sql="SELECT * FROM tutor";
+$result = mysqli_query($conn,$sql);
+
+echo "<label for='module'>Tutor: </label>
+<select name='tutor'>";
+echo "<option>Select a Tutor</option>";
+while($row = mysqli_fetch_array($result)) {
+	$tutorid = $row['tutorid'];
+	echo "<option value=".$tutorid; if(isset($tutor)) {if($tutor==$tutorid) {echo " selected";}} echo ">" .$row['firstname']." ".$row['lastname']."</option>";
+}
+echo "</select>";
+mysqli_close($conn);
+?>
 
 
 
 <?php
 if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit'>";$_SESSION['updatingid']=$holidayid;} else {echo "<input type='submit' name='new' value='submit' >";}
 ?>
-
+ </fieldset>
 </form>
 </div>
 </div>
@@ -103,11 +116,11 @@ if(isset($_GET['edit'])) {echo "<input type='submit' name='submit' value='submit
 			var d = 5000;
 			
 			var buildingname = document.forms["container"]["tutor"].value;
-			if (buildingname == null || buildingname == "") 
+			if (buildingname == null || buildingname == "Select a Tutor") 
 			{
 				d += 500;
 				alertify.set({ delay: d });
-				alertify.log("tutor name is required");
+				alertify.log("tutor is required");
 				flag=false;
 			}
 		

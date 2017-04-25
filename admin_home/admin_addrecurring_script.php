@@ -31,11 +31,11 @@
 	//editing
 	if(isset($_GET['submit']))
 	{
-	$result = "UPDATE coursebooking SET tutor='$tutor' WHERE coursebookingid='$updatingid'";
+	$result = "UPDATE coursebooking SET tutorid='$tutor' WHERE coursebookingid='$updatingid'";
 		
 		if ($runquery = $conn->query($result))
 	{
-	$_SESSION['error'] = "The tutor field edited.";
+	$_SESSION['error'] = "The tutor edited.";
 	header('location: ./admin_addrecurring.php');
 	exit();
 	}
