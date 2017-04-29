@@ -15,6 +15,8 @@
 		echo "<li><a href='../admin_home/admin_editschool.php' class='hvr-back-pulse'>School</a></li>";
 		echo "<li><a href='../admin_home/admin_editprogramme.php' class='hvr-back-pulse'>Programme</a></li>";
 		echo "<li><a href='../admin_home/admin_editcourse.php' class='hvr-back-pulse'>Course</a></li>";
+		echo "<li><a href='../admin_home/admin_editcohort.php' class='hvr-back-pulse'>Cohort</a></li>";
+		echo "<li><a href='../admin_home/admin_editcampusprogramme.php' class='hvr-back-pulse'>Associate Programme with Campus</a></li>";
 		echo "</ul>";
 		echo "<ul>";
 		echo "<li>Adhoc Booking</li>";

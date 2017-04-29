@@ -124,12 +124,13 @@ function changeOptions(campusid) {
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                document.getElementById("buildingid").innerHTML = xmlhttp.responseText;
+                document.getElementById("programmeid").innerHTML = xmlhttp.responseText;
             }
         }
 		
         xmlhttp.open("GET","../php_script/getbuildingform_script.php?campusid="+campusid,true);
         xmlhttp.send();
+		
     } 
 	function askAreas() {
 		var check = document.getElementById("askareas");
@@ -274,7 +275,7 @@ mysqli_close($conn);
 include '../php_script/connectDB.php';
 $sql="SELECT * FROM building";
 $result = mysqli_query($conn,$sql);
-echo "<label for='buildingid'>Building: </label>
+echo "<label for='buildingid'>building: </label>
 <select name='buildingid' id='buildingid'>";
 echo "<option>Select a building</option>";
 while($row = mysqli_fetch_array($result)) {
@@ -314,6 +315,7 @@ mysqli_close($conn);
 		</div>
 		
 <script>
+
 <?php
 if(isset($_SESSION["addingfailid"]))
 	{
